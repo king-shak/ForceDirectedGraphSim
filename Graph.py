@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 import numpy as np
 
+# TODO: Maybe look at cleaning this up more, adding a dataclass for edges?
+
 # Representation of a node in the Graph.
 @dataclass
 class Node:
@@ -61,7 +63,8 @@ class Graph:
             return self.adjList[idx]
         except:
             return None
-        
+    
+    # This is for debugging purposes.
     def print(self):
         for node in self.adjList:
             print(node.id + ':')

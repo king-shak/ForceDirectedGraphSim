@@ -1,3 +1,9 @@
+# TODO: Look into maybe making some sort of visualizer? If we have time, and
+#       it doesn't take too much time. The goal would be to visualize it and
+#       be able to change the constants, as well as the steps and the number
+#       of steps to perform per second (should report if there are
+#       performance issues).
+
 from Graph import Graph, Node
 from math import log, pow
 import random
@@ -6,30 +12,29 @@ import matplotlib.pyplot as plt
 
 # Constant definitions.
 NUM_STEPS = 250
-NUM_NODES = 30        # Don't exceed 30.
+NUM_NODES = 20        # Don't exceed 30.
 NODES_PER_GROUP = 5
 
-# These are the constants used in calculating the attractive and repelling forces.
-c1 = 2.0    # This is the strength of the attractive force.
-c2 = 10.0   # This is the distance desired between nodes
-c3 = 5.0   # This is the strength of the repelling force.
-c4 = 1.0    # THIS is the effective speed of the nodes.
+C1 = 2.0    # This is the strength of the attractive force.
+C2 = 10.0   # This is the distance desired between nodes
+C3 = 5.0    # This is the strength of the repelling force.
+C4 = 1.0    # This is the effective speed of the nodes.
 
-# This is our graph.
+# Now we define our graph.
 graph = Graph()
-
-# This contains all our nodes.
 nodes = []
 
-# Create our nodes.
+# This is used to make sure the starting position of each node is unique.
 def isUniquePos(pos):
     for node in nodes:
         if np.array_equal(pos, node.position):
             return False
     return True
 
+# Create our nodes.
 random.seed(a = 10)
 for i in range(NUM_NODES):
+    # Keep generating random positions till we get something unique.
     x = random.randrange(320, 340, 1)
     y = random.randrange(240, 260, 1)
 
@@ -38,15 +43,24 @@ for i in range(NUM_NODES):
         pos[0] = random.randrange(320, 340, 1)
         pos[1] = random.randrange(240, 260, 1)
 
+    # Create the label for the node.
     label = str(i)
+
+    # If this is the 'leader' of a group (it's directly connected to all the
+    # nodes in the group).
     if (i % NODES_PER_GROUP == 0):
         label += '***'
 
+    # Create the node, add it to our list and add it to the graph.
     node = Node(label, pos)
     nodes.append(node)
     graph.addNode(node)
 
 # Create the edges.
+# TODO: Clean this up to model groups which actually would appear in ProVis.
+#       (Having one node sticking out from the "leader" of the group which
+#        used to connect to the other groups).
+# TODO: Try to add a way to add other disjoint groups.
 for i in range(0, NUM_NODES, NODES_PER_GROUP):
     if (i != 0 and i != NUM_NODES):
         graph.addEdge(nodes[i - NODES_PER_GROUP].id, nodes[i].id)
@@ -60,6 +74,8 @@ for i in range(0, NUM_NODES, NODES_PER_GROUP):
 
 # graph.print()
 
+# This gets the X and Y values of the positions of all the nodes, as well as
+# their labels, for when we want to plot their positions.
 def getXY():
     x = []
     y = []
@@ -73,18 +89,17 @@ def getXY():
     return x, y, labels
 
 # Graph the initial positions of the nodes.
-fig, ax = plt.subplots(figsize = (10, 10))
+fig, axes = plt.subplots(2, 2, figsize = (20, 20))
 
 x, y, labels = getXY()
-
-ax.scatter(x, y)
+axes[0][0].scatter(x, y)
 
 for i, txt in enumerate(labels):
-    ax.annotate(txt, (x[i], y[i]))
+    axes[0][0].annotate(txt, (x[i], y[i]))
 
-# plt.legend()
-plt.savefig('before.png')
-plt.show()
+axes[0][0].set_title('Initial Positions')
+axes[0][0].set_xlabel('X')
+axes[0][0].set_ylabel('Y')
 
 # Helper methods for calculating forces between the nodes.
 def getDistance(src, dest):
@@ -100,7 +115,7 @@ def attractiveForce(src, dest):
     vec = normalizedVector(src, dest)
     
     # Calculate the attractive force and apply it.
-    force = c1 * log(distance / c2)
+    force = C1 * log(distance / C2)
     
     vec[0] = vec[0] * force
     vec[1] = vec[1] * force
@@ -113,21 +128,22 @@ def repellingForce(src, dest):
     vec = normalizedVector(src, dest)
     
     # Calculate the repelling force and apply it.
-    force = -c3 / pow(distance, 2)
+    force = -C3 / pow(distance, 2)
     
     vec[0] = vec[0] * force
     vec[1] = vec[1] * force
     
     return vec, force
 
-# Simulate the connected nodes.
-x = range(NUM_STEPS)
+# Create the arrays to store our data in.
+simX = np.array(range(NUM_STEPS), dtype = np.double)
 attractiveForces = np.zeros((len(nodes), NUM_STEPS), dtype = np.double)
 repellingForces = np.zeros((len(nodes), NUM_STEPS), dtype = np.double)
 netForces = np.zeros((len(nodes), NUM_STEPS), dtype = np.double)
 posX = np.zeros((len(nodes), NUM_STEPS), dtype = np.double)
 posY = np.zeros((len(nodes), NUM_STEPS), dtype = np.double)
 
+# Run the simulation.
 for step in range(NUM_STEPS):
     for i, node1 in enumerate(nodes):
         netForce = np.array([0.0, 0.0], dtype = np.double)
@@ -160,8 +176,8 @@ for step in range(NUM_STEPS):
 
         # Finally, we apply the force on the node by updating its position.
         netForces[i][step] = np.linalg.norm(netForce)
-        node1.position[0] = node1.position[0] + (c4 * netForce[0])
-        node1.position[1] = node1.position[1] + (c4 * netForce[1])
+        node1.position[0] = node1.position[0] + (C4 * netForce[0])
+        node1.position[1] = node1.position[1] + (C4 * netForce[1])
         
         # Save our data.
         posX[i][step] = node1.position[0]
@@ -170,39 +186,16 @@ for step in range(NUM_STEPS):
         attractiveForces[i][step] = netAttractiveForce
         repellingForces[i][step] = netRepellingForce
 
-fig, ax = plt.subplots(figsize = (10, 10))
-
-# Graph the net forces of each node.
-for i in range(NUM_NODES):
-    label = "Node " + str(i) + " Net"
-    ax.plot(x, netForces[i], label = label, marker = 'o')
-
-# ax.plot(x, netForces[0], label = "Node A Net", marker = 'o')
-# ax.plot(x, attractiveForces[0], label = "Node A Attractive")
-# ax.plot(x, repellingForces[0], label = "Node A Repelling")
-
-# ax.plot(x, netForces[1], label = "Node B Net", marker = 'o')
-# ax.plot(x, attractiveForces[1], label = "Node B Attractive")
-# ax.plot(x, repellingForces[1], label = "Node B Repelling")
-
-plt.ylim([-10, 100])
-# plt.xlim([0, 10])
-plt.legend()
-plt.show()
-
 # Graph the final positions of the nodes.
-fig, ax = plt.subplots(figsize = (10, 10))
-
 x, y, labels = getXY()
-
-ax.scatter(x, y)
+axes[0][1].scatter(x, y)
 
 for i, txt in enumerate(labels):
-    ax.annotate(txt, (x[i], y[i]))
+    axes[0][1].annotate(txt, (x[i], y[i]))
 
-# plt.legend()
-plt.savefig('after.png')
-plt.show()
+axes[0][1].set_title('Final Positions')
+axes[0][1].set_xlabel('X')
+axes[0][1].set_ylabel('Y')
 
 # Post analysis of node positions.
 edgeLengths = []
@@ -217,5 +210,37 @@ data = np.array(edgeLengths, dtype=np.double)
 meanEdgeLength = np.mean(data)
 edgeLengthStd = np.std(data)
 
+results = f'Mean edge length: {round(meanEdgeLength, 2)}\nEdge length STD: {round(edgeLengthStd, 2)}'
+axes[0][1].text(0.73, 0.02, results, size = 10, transform = axes[0][1].transAxes)
+
 print('Mean edge length: ' + str(meanEdgeLength))
 print('Edge length STD: ' + str(edgeLengthStd))
+
+# TODO: Make a separate figure for drawing all the forces, do one per node
+#       (showing attractive, repelling, and net forces).
+# Graph the net forces of each node.
+for i in range(NUM_NODES):
+    label = "Node " + str(i) + " Net"
+    axes[1][0].plot(simX, netForces[i], label = label, marker = 'o')
+
+axes[1][0].axis(xmin = 0, xmax = 10)
+axes[1][0].axis(ymin = -3, ymax = 15)
+axes[1][0].set_xlabel('Sim Step')
+axes[1][0].set_ylabel('Net Force')
+
+# Graph the attractive and repelling forces of each node.
+MARKERS = ['.', ',', 'o', 'v', '^', '<', '>', '1', '2', '3', '4', '8', 's', 'p', 'P', '*', 'h', 'H', '+', 'x', 'X', 'D', 'd', '|', '_', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+
+for i in range(NUM_NODES):
+    label = "Node " + str(i) + " Attractive"
+    axes[1][1].plot(simX, attractiveForces[i], label = label, marker = MARKERS[i])
+
+    label = "Node " + str(i) + " Repelling"
+    axes[1][1].plot(simX, repellingForces[i], label = label, marker = MARKERS[i])
+
+axes[1][1].axis(xmin = 0, xmax = 20)
+axes[1][1].axis(ymin = -6, ymax = 5)
+axes[1][1].set_xlabel('Sim Step')
+axes[1][1].set_ylabel('Force')
+
+plt.savefig('results.png', dpi = 300)

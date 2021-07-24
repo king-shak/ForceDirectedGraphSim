@@ -30,11 +30,6 @@
 *.exe
 *.out
 *.app
-rr
-sjf
-fcfs
-priority
-priority_rr
 
 # Ignore IDE, editor, and system files
 .DS_Store
@@ -43,3 +38,6 @@ priority_rr
 .vs/
 .vscode
 __pycache__
+
+# Program output
+*.png
