@@ -9,6 +9,7 @@ from math import log, pow
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 # Constant definitions.
 NUM_STEPS = 250
@@ -21,7 +22,7 @@ C3 = 5.0    # This is the strength of the repelling force.
 C4 = 1.0    # This is the effective speed of the nodes.
 
 # Now we define our graph.
-graph = Graph()
+graph = Graph(NUM_NODES)
 nodes = []
 
 # This is used to make sure the starting position of each node is unique.
@@ -47,12 +48,13 @@ for i in range(NUM_NODES):
     label = str(i)
 
     # If this is the 'leader' of a group (it's directly connected to all the
-    # nodes in the group).
+    # nodes in the group) add *** to the label to distinguish it from others.
     if (i % NODES_PER_GROUP == 0):
         label += '***'
 
     # Create the node, add it to our list and add it to the graph.
-    node = Node(label, pos)
+    # The ID will be assigned by the graph.
+    node = Node(label = label, position = pos)
     nodes.append(node)
     graph.addNode(node)
 
@@ -72,7 +74,7 @@ for i in range(0, NUM_NODES, NODES_PER_GROUP):
         graph.addEdge(nodes[i].id, nodes[j].id)
         print('(' + str(i) + ', ' + str(j) + ')')
 
-# graph.print()
+graph.print()
 
 # This gets the X and Y values of the positions of all the nodes, as well as
 # their labels, for when we want to plot their positions.
@@ -84,7 +86,7 @@ def getXY():
     for node in nodes:
         x.append(node.position[0])
         y.append(node.position[1])
-        labels.append(node.id)
+        labels.append(node.label)
 
     return x, y, labels
 
@@ -144,6 +146,7 @@ posX = np.zeros((len(nodes), NUM_STEPS), dtype = np.double)
 posY = np.zeros((len(nodes), NUM_STEPS), dtype = np.double)
 
 # Run the simulation.
+simStart = time.time()
 for step in range(NUM_STEPS):
     for i, node1 in enumerate(nodes):
         netForce = np.array([0.0, 0.0], dtype = np.double)
@@ -185,6 +188,8 @@ for step in range(NUM_STEPS):
         
         attractiveForces[i][step] = netAttractiveForce
         repellingForces[i][step] = netRepellingForce
+simEnd = time.time()
+print(simEnd - simStart)
 
 # Graph the final positions of the nodes.
 x, y, labels = getXY()
