@@ -70,5 +70,4 @@ class Graph:
             print(node.id + ':')
             for foo in node.adjList:
                 print(foo)
-                print(self.doesEdgeExist(node.id, foo))
             print('\n')

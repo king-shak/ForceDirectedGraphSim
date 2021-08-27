@@ -72,6 +72,23 @@ for i in range(0, NUM_NODES, NODES_PER_GROUP):
         graph.addEdge(nodes[i].id, nodes[j].id)
         print('(' + str(i) + ', ' + str(j) + ')')
 
+# Revised edge creation method which has the commit node, with the software agent node
+# connected to that, and a activity node connected to that, which has 4 entity nodes
+# connected to it.
+# for i in range(0, NUM_NODES, NODES_PER_GROUP):
+#     # Create the commit node.
+
+
+#     # If this isn't the first one, (i.e., node ID 0) create an edge between this commit
+#     # node and the previous one.
+
+#     # Create the software agent node and an edge between it and the commit node.
+
+#     # Create the activity node and an edge between it and the software agent node.
+
+#     # Create the 4 entity nodes and created edges between them and the activity node.
+
+
 # graph.print()
 
 # This gets the X and Y values of the positions of all the nodes, as well as
