@@ -90,7 +90,6 @@ for i in range(0, NUM_NODES, NODES_PER_GROUP):
 
 #     # Create the 4 entity nodes and created edges between them and the activity node.
 
-
 graph.print()
 
 # This gets the X and Y values of the positions of all the nodes, as well as
@@ -232,20 +231,26 @@ edgeLengthStd = np.std(data)
 results = f'Mean edge length: {round(meanEdgeLength, 2)}\nEdge length STD: {round(edgeLengthStd, 2)}'
 axes[0][1].text(0.73, 0.02, results, size = 10, transform = axes[0][1].transAxes)
 
-print('Mean edge length: ' + str(meanEdgeLength))
-print('Edge length STD: ' + str(edgeLengthStd))
+print('Mean edge length: ' + str(round(meanEdgeLength, 2)))
+print('Edge length STD: ' + str(round(edgeLengthStd, 2)))
 
 # TODO: Make a separate figure for drawing all the forces, do one per node
 #       (showing attractive, repelling, and net forces).
 # Graph the net forces of each node.
+avgNetForce = 0
 for i in range(NUM_NODES):
     label = "Node " + str(i) + " Net"
     axes[1][0].plot(simX, netForces[i], label = label, marker = 'o')
+    avgNetForce += netForces[i][NUM_STEPS - 1]
 
 axes[1][0].axis(xmin = 0, xmax = 10)
 axes[1][0].axis(ymin = -3, ymax = 15)
 axes[1][0].set_xlabel('Sim Step')
 axes[1][0].set_ylabel('Net Force')
+
+avgNetForce /= NUM_STEPS
+
+print('Mean final net force: ' + str(round(avgNetForce, 2)))
 
 # Graph the attractive and repelling forces of each node.
 MARKERS = ['.', ',', 'o', 'v', '^', '<', '>', '1', '2', '3', '4', '8', 's', 'p', 'P', '*', 'h', 'H', '+', 'x', 'X', 'D', 'd', '|', '_', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
