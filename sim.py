@@ -17,7 +17,7 @@ NUM_NODES = 20        # Don't exceed 30.
 NODES_PER_GROUP = 5
 
 C1 = 2.0    # This is the strength of the attractive force.
-C2 = 10.0   # This is the distance desired between nodes
+C2 = 10.0   # This is the distance desired between nodes.
 C3 = 5.0    # This is the strength of the repelling force.
 C4 = 1.0    # This is the effective speed of the nodes.
 
@@ -91,7 +91,7 @@ for i in range(0, NUM_NODES, NODES_PER_GROUP):
 #     # Create the 4 entity nodes and created edges between them and the activity node.
 
 
-# graph.print()
+graph.print()
 
 # This gets the X and Y values of the positions of all the nodes, as well as
 # their labels, for when we want to plot their positions.
@@ -163,7 +163,6 @@ posX = np.zeros((len(nodes), NUM_STEPS), dtype = np.double)
 posY = np.zeros((len(nodes), NUM_STEPS), dtype = np.double)
 
 # Run the simulation.
-simStart = time.time()
 for step in range(NUM_STEPS):
     for i, node1 in enumerate(nodes):
         netForce = np.array([0.0, 0.0], dtype = np.double)
@@ -205,8 +204,6 @@ for step in range(NUM_STEPS):
         
         attractiveForces[i][step] = netAttractiveForce
         repellingForces[i][step] = netRepellingForce
-simEnd = time.time()
-print(simEnd - simStart)
 
 # Graph the final positions of the nodes.
 x, y, labels = getXY()

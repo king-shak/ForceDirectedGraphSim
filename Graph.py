@@ -102,7 +102,7 @@ class Graph:
             # Print all its neighbors.
             for j in range(self.numNodes):
                 if (self.adjMatrix[i][j] == 1):
-                    print(str(self.nodes[i].id) + ' ', end = '')
+                    print(' ' + str(self.nodes[i].id), end = '')
             
             # Print a newline.
             print('')
