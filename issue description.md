@@ -34,6 +34,7 @@ At the end of the notebook is a Discussion covering most of the things mentioned
 
 
 THIS IS THE VANILLA REDRAWING METHOD ISSUE DRAFT
+
 Currently, the canvas (the off-white portion of the ProVis tab wherein the nodes are displayed) is re-drawn for every single frame. However, as long as the window isn't resized (and I believe if it isn't minimized) the canvas will stay the same. You don't need to redraw it every time.
 
 So, we should only redraw the canvas when the user is interacting with it, *or* when the window is being resized or iconified (minimized). Interaction with the canvas includes:
